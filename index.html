@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Binary Kodlash va Retranslyatsiya</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: #0f172a;
+        color: #f8fafc;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        background-color: #1e293b;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        width: 100%;
+        max-width: 700px;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 8px;
+        color: #38bdf8;
+        font-size: 1.8rem;
+      }
+
+      p.subtitle {
+        text-align: center;
+        color: #94a3b8;
+        margin-bottom: 24px;
+        font-size: 0.95rem;
+      }
+
+      .tabs {
+        display: flex;
+        margin-bottom: 20px;
+        background-color: #0f172a;
+        border-radius: 8px;
+        padding: 4px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        background: none;
+        color: #94a3b8;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+      }
+
+      .tab-btn.active {
+        background-color: #0284c7;
+        color: #ffffff;
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #cbd5e1;
+        font-weight: 500;
+      }
+
+      textarea {
+        width: 100%;
+        height: 120px;
+        background-color: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 12px;
+        color: #f8fafc;
+        font-size: 1rem;
+        resize: vertical;
+        outline: none;
+        transition: border-color 0.3s;
+      }
+
+      textarea:focus {
+        border-color: #38bdf8;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+        justify-content: flex-end;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+      }
+
+      .btn-primary {
+        background-color: #0284c7;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: #0369a1;
+      }
+
+      .btn-secondary {
+        background-color: #334155;
+        color: #cbd5e1;
+      }
+
+      .btn-secondary:hover {
+        background-color: #475569;
+      }
+
+      .error-message {
+        color: #ef4444;
+        font-size: 0.85rem;
+        margin-top: 6px;
+        display: none;
+      }
+
+      .status-toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #10b981;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+      }
+
+      .status-toast.show {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Binary Konvertor</h1>
+      <p class="subtitle">Matnlarni ikkilik kodga va aksincha o'giring</p>
+
+      <!-- Tab menyular -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchMode('textToBinary')">
+          Matn ➔ Binary
+        </button>
+        <button class="tab-btn" onclick="switchMode('binaryToText')">
+          Binary ➔ Matn
+        </button>
+      </div>
+
+      <!-- Kiritish sohasi -->
+      <div class="input-group">
+        <label id="inputLabel" for="inputText">Matnni kiriting:</label>
+        <textarea
+          id="inputText"
+          placeholder="Bu yerga matn kiriting..."
+          oninput="convert()"
+        ></textarea>
+        <div class="actions">
+          <button class="btn btn-secondary" onclick="insertSample()">
+            Namuna
+          </button>
+          <button class="btn btn-secondary" onclick="clearFields()">
+            Tozalash
+          </button>
+        </div>
+      </div>
+
+      <!-- Natija sohasi -->
+      <div class="input-group">
+        <label id="outputLabel" for="outputText">Binary natija:</label>
+        <textarea
+          id="outputText"
+          readonly
+          placeholder="Natija bu yerda ko'rinadi..."
+        ></textarea>
+        <div id="errorMessage" class="error-message">
+          Faqat 0, 1 va bo'shliqlardan foydalaning!
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" onclick="copyOutput()">
+            📋 Ko'chirib olish
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="status-toast">Nusxalandi!</div>
+
+    <script>
+      let currentMode = "textToBinary";
+
+      function switchMode(mode) {
+        currentMode = mode;
+        const tabs = document.querySelectorAll(".tab-btn");
+        tabs.forEach((tab) => tab.classList.remove("active"));
+
+        const inputLabel = document.getElementById("inputLabel");
+        const outputLabel = document.getElementById("outputLabel");
+        const inputText = document.getElementById("inputText");
+        const outputText = document.getElementById("outputText");
+
+        if (mode === "textToBinary") {
+          tabs[0].classList.add("active");
+          inputLabel.innerText = "Matnni kiriting:";
+          outputLabel.innerText = "Binary natija:";
+          inputText.placeholder = "Bu yerga matn kiriting...";
+        } else {
+          tabs[1].classList.add("active");
+          inputLabel.innerText = "Binary kodni kiriting:";
+          outputLabel.innerText = "Matn natijasi:";
+          inputText.placeholder =
+            "Masalan: 01010011 01000001 01001100 01001111 01001101";
+        }
+
+        clearFields();
+      }
+
+      function convert() {
+        const input = document.getElementById("inputText").value;
+        const output = document.getElementById("outputText");
+        const errorMsg = document.getElementById("errorMessage");
+
+        errorMsg.style.display = "none";
+
+        if (!input.trim()) {
+          output.value = "";
+          return;
+        }
+
+        if (currentMode === "textToBinary") {
+          // Matnni Binary koda o'tkazish (UTF-8 qo'llab-quvvatlaydi)
+          const binaryResult = Array.from(input)
+            .map((char) => char.charCodeAt(0).toString(2).padStart(8, "0"))
+            .join(" ");
+          output.value = binaryResult;
+        } else {
+          // Binary kodni Matnga o'tkazish
+          const cleanedInput = input.trim();
+          const binaryArray = cleanedInput.split(/\s+/);
+          let textResult = "";
+          let isValid = true;
+
+          for (let bin of binaryArray) {
+            if (bin === "") continue;
+            if (!/^[01]+$/.test(bin)) {
+              isValid = false;
+              break;
+            }
+            textResult += String.fromCharCode(parseInt(bin, 2));
+          }
+
+          if (isValid) {
+            output.value = textResult;
+          } else {
+            errorMsg.style.display = "block";
+            output.value = "";
+          }
+        }
+      }
+
+      function copyOutput() {
+        const outputText = document.getElementById("outputText");
+        if (!outputText.value) return;
+
+        navigator.clipboard
+          .writeText(outputText.value)
+          .then(() => {
+            showToast("Nusxalandi!");
+          })
+          .catch((err) => {
+            console.error("Nusxalashda xatolik:", err);
+          });
+      }
+
+      function clearFields() {
+        document.getElementById("inputText").value = "";
+        document.getElementById("outputText").value = "";
+        document.getElementById("errorMessage").style.display = "none";
+      }
+
+      function insertSample() {
+        const inputText = document.getElementById("inputText");
+        if (currentMode === "textToBinary") {
+          inputText.value = "Salom, Dunyo!";
+        } else {
+          inputText.value = "01010011 01000001 01001101 01001111 01001101";
+        }
+        convert();
+      }
+
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.innerText = message;
+        toast.classList.add("show");
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 2000);
+      }
+    </script>
+  </body>
+</html>
