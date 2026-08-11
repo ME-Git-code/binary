@@ -5,11 +5,20 @@
     <script>
       (function () {
         var light = localStorage.getItem("theme_light") === "true";
-        document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+        document.documentElement.setAttribute(
+          "data-theme",
+          light ? "light" : "dark",
+        );
       })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🌐 Tarjimon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -20,7 +29,13 @@
         <a href="foto.html">🖼 Rasm Shifrlash</a>
       </div>
       <div class="nav-icons">
-        <button class="icon-btn" onclick="showHelp('translate')" aria-label="Yordam">❓</button>
+        <button
+          class="icon-btn"
+          onclick="showHelp('translate')"
+          aria-label="Yordam"
+        >
+          ❓
+        </button>
         <a href="settings.html" class="icon-btn" aria-label="Sozlamalar">⚙️</a>
       </div>
     </nav>
@@ -49,8 +64,7 @@
         <textarea id="trInput" placeholder="Matnni kiriting..."></textarea>
       </div>
       <button
-        class="btn btn-primary"
-        style="width: 100%; margin-bottom: 15px"
+        class="btn btn-primary u-w-full u-mb-md"
         onclick="translateText()"
       >
         Tarjima qilish
@@ -76,7 +90,13 @@
       <div class="modal-box">
         <h3 id="helpModalTitle"></h3>
         <p id="helpModalText"></p>
-        <button class="btn btn-primary" style="width: 100%" onclick="closeHelp()">Tushunarli</button>
+        <button
+          class="btn btn-primary"
+          style="width: 100%"
+          onclick="closeHelp()"
+        >
+          Tushunarli
+        </button>
       </div>
     </div>
 

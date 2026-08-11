@@ -170,12 +170,12 @@ function fetchAndDecrypt() {
       }
 
       const badge = mode === "once"
-        ? "<p style='color:#ef4444; font-size:0.8rem; margin-bottom:5px;'>🔥 Ushbu rasm 1 martalik edi va bazadan o'chirildi!</p>"
-        : "<p style='color:#10b981; font-size:0.8rem; margin-bottom:5px;'>♾ Ushbu rasm ko'p martalik va bazada saqlanadi.</p>";
+        ? "<p class='result-note is-danger'>🔥 Ushbu rasm 1 martalik edi va bazadan o'chirildi!</p>"
+        : "<p class='result-note is-success'>♾ Ushbu rasm ko'p martalik va bazada saqlanadi.</p>";
 
       previewBox.innerHTML = `
         ${badge}
-        <img src="${originalBase64}" style="max-width:100%; border-radius:8px; margin-bottom:8px; border:1px solid #334155;" />
+        <img src="${originalBase64}" class="decoded-img" />
         <br/>
         <a href="${originalBase64}" download="restored-image.jpg" class="btn btn-primary" style="display:inline-block; text-decoration:none;">📥 Yuklab olish</a>
       `;

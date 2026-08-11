@@ -5,11 +5,20 @@
     <script>
       (function () {
         var light = localStorage.getItem("theme_light") === "true";
-        document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+        document.documentElement.setAttribute(
+          "data-theme",
+          light ? "light" : "dark",
+        );
       })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🖼 Rasm Shifrlash</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
     <!-- CryptoJS & Firebase SDK -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
@@ -24,7 +33,9 @@
         <a href="foto.html" class="active">🖼 Rasm Shifrlash</a>
       </div>
       <div class="nav-icons">
-        <button class="icon-btn" onclick="showHelp('foto')" aria-label="Yordam">❓</button>
+        <button class="icon-btn" onclick="showHelp('foto')" aria-label="Yordam">
+          ❓
+        </button>
         <a href="settings.html" class="icon-btn" aria-label="Sozlamalar">⚙️</a>
       </div>
     </nav>
@@ -56,14 +67,20 @@
             <button
               type="button"
               class="btn btn-secondary upload-btn"
-              onclick="triggerHaptic(); document.getElementById('imgInputGallery').click()"
+              onclick="
+                triggerHaptic();
+                document.getElementById('imgInputGallery').click();
+              "
             >
               🖼 Galereyadan
             </button>
             <button
               type="button"
               class="btn btn-secondary upload-btn"
-              onclick="triggerHaptic(); document.getElementById('imgInputCamera').click()"
+              onclick="
+                triggerHaptic();
+                document.getElementById('imgInputCamera').click();
+              "
             >
               📷 Kameradan
             </button>
@@ -120,12 +137,6 @@
             class="text-input"
             readonly
             placeholder="Masalan: K9X2P1"
-            style="
-              text-align: center;
-              font-weight: bold;
-              font-size: 1.2rem;
-              color: #38bdf8;
-            "
           />
           <div class="actions">
             <button class="btn btn-secondary" onclick="copyCode()">
@@ -178,7 +189,13 @@
       <div class="modal-box">
         <h3 id="helpModalTitle"></h3>
         <p id="helpModalText"></p>
-        <button class="btn btn-primary" style="width: 100%" onclick="closeHelp()">Tushunarli</button>
+        <button
+          class="btn btn-primary"
+          style="width: 100%"
+          onclick="closeHelp()"
+        >
+          Tushunarli
+        </button>
       </div>
     </div>
 
