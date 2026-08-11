@@ -24,6 +24,8 @@ function switchCrypto(type) {
 
 // ----- Galereya / Kamera orqali rasm tanlash -----
 let selectedImageFile = null;
+let selectedImageDataUrl = null; // siqilgan JPEG (preview + shifrlash uchun ishlatiladi)
+const MAX_IMAGE_DIM = 800;
 
 document.addEventListener("DOMContentLoaded", () => {
   const galleryInput = document.getElementById("imgInputGallery");
@@ -32,15 +34,56 @@ document.addEventListener("DOMContentLoaded", () => {
   if (cameraInput) cameraInput.addEventListener("change", (e) => onImageSelected(e.target.files[0]));
 });
 
-function onImageSelected(file) {
+// Har qanday formatdagi rasmni (shu jumladan iPhone HEIC) ishonchli o'qib,
+// kichraytirilgan JPEG data-URL qilib qaytaradi.
+async function loadImageAsCompressedDataUrl(file, maxDim) {
+  let source, width, height;
+
+  try {
+    if (!window.createImageBitmap) throw new Error("no-bitmap-support");
+    source = await createImageBitmap(file);
+    width = source.width;
+    height = source.height;
+  } catch (err) {
+    // Zaxira usul: eski brauzerlar uchun <img> + object URL orqali
+    source = await new Promise((resolve, reject) => {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = () => resolve(img);
+      img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error("image-decode-failed")); };
+      img.src = objectUrl;
+    });
+    width = source.naturalWidth || source.width;
+    height = source.naturalHeight || source.height;
+  }
+
+  if (width > height && width > maxDim) { height *= maxDim / width; width = maxDim; }
+  else if (height > maxDim) { width *= maxDim / height; height = maxDim; }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(source, 0, 0, width, height);
+  if (source.close) source.close(); // ImageBitmap xotirasini bo'shatish
+
+  return canvas.toDataURL("image/jpeg", 0.6);
+}
+
+async function onImageSelected(file) {
   if (!file) return;
   selectedImageFile = file;
   const preview = document.getElementById("imgPreview");
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    preview.innerHTML = `<img src="${e.target.result}" alt="Tanlangan rasm" />`;
-  };
-  reader.readAsDataURL(file);
+  preview.innerHTML = "<p style='color:var(--text-secondary); font-size:0.85rem;'>Yuklanmoqda...</p>";
+
+  try {
+    selectedImageDataUrl = await loadImageAsCompressedDataUrl(file, MAX_IMAGE_DIM);
+    preview.innerHTML = `<img src="${selectedImageDataUrl}" alt="Tanlangan rasm" />`;
+  } catch (err) {
+    selectedImageDataUrl = null;
+    preview.innerHTML = "";
+    showToast("Bu rasmni ochib bo'lmadi. JPG yoki PNG tanlab ko'ring.");
+  }
 }
 
 // Random 6 xonali kalta kod yaratish (Masalan: A7X9K2)
@@ -74,61 +117,41 @@ async function encryptAndUpload() {
   const resultBox = document.getElementById("shortCodeResult");
   const encryptBtn = document.getElementById("encryptBtn");
 
-  if (!selectedImageFile || !pass) return alert("Rasm va parolni kiriting!");
+  if (!selectedImageDataUrl || !pass) return alert("Rasm va parolni kiriting!");
 
   triggerHaptic();
   encryptBtn.disabled = true;
   resultBox.value = "Shifrlanmoqda...";
 
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const img = new Image();
-    img.onload = async function () {
-      try {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const maxDim = 800;
-        let width = img.width, height = img.height;
+  try {
+    const encryptedData = CryptoJS.AES.encrypt(selectedImageDataUrl, pass).toString();
 
-        if (width > height && width > maxDim) { height *= maxDim / width; width = maxDim; }
-        else if (height > maxDim) { width *= maxDim / height; height = maxDim; }
+    // Hujjat hali ham juda katta bo'lsa, foydalanuvchini ogohlantiramiz
+    if (encryptedData.length > MAX_ENCRYPTED_SIZE) {
+      alert("Rasm hali ham juda katta, iltimos kichikroq yoki sifati pastroq rasm tanlang.");
+      resultBox.value = "";
+      encryptBtn.disabled = false;
+      return;
+    }
 
-        canvas.width = width; canvas.height = height;
-        ctx.drawImage(img, 0, 0, width, height);
+    resultBox.value = "Kod tekshirilmoqda...";
+    const shortCode = await generateUniqueShortCode();
 
-        const compressedBase64 = canvas.toDataURL("image/jpeg", 0.6);
-        const encryptedData = CryptoJS.AES.encrypt(compressedBase64, pass).toString();
+    // Firebase Firestore-ga rejim bilan saqlash
+    await db.collection("photos").doc(shortCode).set({
+      data: encryptedData,
+      mode: deleteMode,
+      createdAt: new Date()
+    });
 
-        // Hujjat hali ham juda katta bo'lsa, foydalanuvchini ogohlantiramiz
-        if (encryptedData.length > MAX_ENCRYPTED_SIZE) {
-          alert("Rasm hali ham juda katta, iltimos kichikroq yoki sifati pastroq rasm tanlang.");
-          resultBox.value = "";
-          encryptBtn.disabled = false;
-          return;
-        }
-
-        resultBox.value = "Kod tekshirilmoqda...";
-        const shortCode = await generateUniqueShortCode();
-
-        // Firebase Firestore-ga rejim bilan saqlash
-        await db.collection("photos").doc(shortCode).set({
-          data: encryptedData,
-          mode: deleteMode,
-          createdAt: new Date()
-        });
-
-        resultBox.value = shortCode;
-        showToast("Kod yaratildi!");
-      } catch (err) {
-        alert("Bazaga saqlashda xatolik! " + (err && err.message ? err.message : ""));
-        resultBox.value = "";
-      } finally {
-        encryptBtn.disabled = false;
-      }
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(selectedImageFile);
+    resultBox.value = shortCode;
+    showToast("Kod yaratildi!");
+  } catch (err) {
+    alert("Bazaga saqlashda xatolik! " + (err && err.message ? err.message : ""));
+    resultBox.value = "";
+  } finally {
+    encryptBtn.disabled = false;
+  }
 }
 
 // BAZADAN OLIB RASSHIFRLASH
