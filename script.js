@@ -1,6 +1,33 @@
 let currentMode = "textToBinary";
 
+// Vibratsiya (Haptic feedback)
+function triggerHaptic() {
+  if ("vibrate" in navigator) navigator.vibrate(30);
+}
+
+// Matrix Animatsiyasi
+let matrixInterval = null;
+function animateMatrix(targetInput, targetText) {
+  clearInterval(matrixInterval);
+  const chars = "0101010101ABCDEFXYZ$#@%";
+  let iteration = 0;
+
+  matrixInterval = setInterval(() => {
+    targetInput.value = targetText
+      .split("")
+      .map((char, index) => {
+        if (index < iteration) return targetText[index];
+        return chars[Math.floor(Math.random() * chars.length)];
+      })
+      .join("");
+
+    if (iteration >= targetText.length) clearInterval(matrixInterval);
+    iteration += 1 / 2;
+  }, 25);
+}
+
 function switchMode(mode) {
+  triggerHaptic();
   currentMode = mode;
   const tabs = document.querySelectorAll(".tab-btn");
   tabs.forEach((tab) => tab.classList.remove("active"));
@@ -31,7 +58,9 @@ function convert() {
 
   errorMsg.style.display = "none";
 
+  // Matn bo'shatilganda animatsiyani darhol to'xtatish
   if (!input.trim()) {
+    clearInterval(matrixInterval);
     output.value = "";
     return;
   }
@@ -40,8 +69,9 @@ function convert() {
     const binaryResult = Array.from(input)
       .map((char) => char.charCodeAt(0).toString(2).padStart(8, "0"))
       .join(" ");
-    output.value = binaryResult;
+    animateMatrix(output, binaryResult);
   } else {
+    clearInterval(matrixInterval);
     const cleanedInput = input.trim();
     const binaryArray = cleanedInput.split(/\s+/);
     let textResult = "";
@@ -66,6 +96,7 @@ function convert() {
 }
 
 function copyOutput() {
+  triggerHaptic();
   const outputText = document.getElementById("outputText");
   if (!outputText.value) return;
 
@@ -75,12 +106,15 @@ function copyOutput() {
 }
 
 function clearFields() {
+  triggerHaptic();
+  clearInterval(matrixInterval);
   document.getElementById("inputText").value = "";
   document.getElementById("outputText").value = "";
   document.getElementById("errorMessage").style.display = "none";
 }
 
 function insertSample() {
+  triggerHaptic();
   const inputText = document.getElementById("inputText");
   if (currentMode === "textToBinary") {
     inputText.value = "Salom, Dunyo!";
@@ -99,16 +133,32 @@ function showToast(message) {
   }, 2000);
 }
 
+// Auto-Paste (Vaqtinchalik xotiradan olish)
+async function autoPaste() {
+  triggerHaptic();
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById("inputText").value = text;
+    convert();
+    showToast("Xotiradan joylandi!");
+  } catch (err) {
+    showToast("Ruxsat berilmadi!");
+  }
+}
+
 // Tarjimon Modal Mantig'i
 function openTranslator() {
+  triggerHaptic();
   document.getElementById("translatorModal").classList.add("active");
 }
 
 function closeTranslator() {
+  triggerHaptic();
   document.getElementById("translatorModal").classList.remove("active");
 }
 
 function swapLanguages() {
+  triggerHaptic();
   const source = document.getElementById("sourceLang");
   const target = document.getElementById("targetLang");
   const temp = source.value;
@@ -149,7 +199,7 @@ const dictionary = {
   },
   "ru-uz": {
     привет: "Salom",
-    "как дела": "Qalaysiz",
+    "как дела": "Как дела",
     "я в порядке": "Yaxshiman",
     спасибо: "Rahmat",
   },
@@ -183,7 +233,7 @@ async function translateText() {
 
   try {
     const res = await fetch(
-      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(input)}&langpair=${source}|${target}`,
+      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(input)}&langpair=${source}|${target}`
     );
     const data = await res.json();
     if (data && data.responseData) {
@@ -197,6 +247,7 @@ async function translateText() {
 }
 
 function copyTranslate() {
+  triggerHaptic();
   const trOutput = document.getElementById("trOutput");
   if (!trOutput.value) return;
 
