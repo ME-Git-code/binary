@@ -1,8 +1,12 @@
-# Maxfiy Firebase kalitlari — hech qachon git'ga tushmasin
-firebase-config.js
-
 # OS / editor fayllari
 .DS_Store
 Thumbs.db
 *.log
 node_modules/
+
+# ESLATMA: firebase-config.js ataylab BU YERDA YO'Q.
+# Sabab: sayt GitHub Pages orqali statik tarzda joylashtiriladi (build/server jarayoni yo'q),
+# shuning uchun bu fayl commit qilinishi SHART, aks holda jonli saytda 404 xatosi chiqadi.
+# Xavfsizlik gitignore orqali emas, balki quyidagilar orqali ta'minlanadi:
+#   1) Google Cloud Console'da API Key'ni faqat o'z domeningizga cheklash (HTTP referrers)
+#   2) Firestore Security Rules orqali yozish/o'qish huquqlarini chegaralash
