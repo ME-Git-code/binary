@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🖼 Rasm Shifrlash</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- CryptoJS & Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="index.html">🔢 Binary</a>
+      <a href="translate.html">🌐 Tarjimon</a>
+      <a href="foto.html" class="active">🖼 Rasm Shifrlash</a>
+    </nav>
+
+    <div class="container">
+      <h1>🖼 Kalta Kodli Rasm Shifrlash</h1>
+      <p class="subtitle">
+        Rasm shifrlanadi va bor-yog'i 6 xonali kodga aylanadi
+      </p>
+
+      <div class="tabs">
+        <button
+          class="tab-btn active"
+          id="encTab"
+          onclick="switchCrypto('encode')"
+        >
+          Shifrlash (Rasm ➔ Kod)
+        </button>
+        <button class="tab-btn" id="decTab" onclick="switchCrypto('decode')">
+          Tiklash (Kod ➔ Rasm)
+        </button>
+      </div>
+
+      <!-- SHIFRLASH -->
+      <div id="encBox">
+        <div class="input-group">
+          <label>1. Rasmni tanlang:</label>
+          <input
+            type="file"
+            id="imgInput"
+            accept="image/*"
+            class="file-input"
+          />
+        </div>
+        <div class="input-group">
+          <label>2. Maxfiy Parol kiriting:</label>
+          <input
+            type="password"
+            id="encPass"
+            placeholder="Parol..."
+            class="text-input"
+          />
+        </div>
+        <div class="input-group">
+          <label>3. Rasm ko'rish rejimi:</label>
+          <select id="deleteMode" class="text-input" style="cursor: pointer">
+            <option value="once">
+              🔥 1 martalik (Ko'rilgach avtomatik o'chadi)
+            </option>
+            <option value="keep">
+              ♾ Ko'p martalik (Bazada saqlanib qoladi)
+            </option>
+          </select>
+        </div>
+        <button
+          class="btn btn-primary"
+          id="encryptBtn"
+          style="width: 100%"
+          onclick="encryptAndUpload()"
+        >
+          🔒 Rasmni Shifrlash
+        </button>
+
+        <div class="input-group" style="margin-top: 15px">
+          <label>Sizning Kalta Kodingiz:</label>
+          <input
+            type="text"
+            id="shortCodeResult"
+            class="text-input"
+            readonly
+            placeholder="Masalan: K9X2P1"
+            style="
+              text-align: center;
+              font-weight: bold;
+              font-size: 1.2rem;
+              color: #38bdf8;
+            "
+          />
+          <div class="actions">
+            <button class="btn btn-secondary" onclick="copyCode()">
+              📋 Kodni Nusxalash
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIKLASH -->
+      <div id="decBox" style="display: none">
+        <div class="input-group">
+          <label>1. 6 xonali Kodni kiriting:</label>
+          <input
+            type="text"
+            id="decCodeInput"
+            placeholder="Masalan: K9X2P1"
+            class="text-input"
+            style="text-transform: uppercase"
+          />
+        </div>
+        <div class="input-group">
+          <label>2. Parolni kiriting:</label>
+          <input
+            type="password"
+            id="decPass"
+            placeholder="Parol..."
+            class="text-input"
+          />
+        </div>
+        <button
+          class="btn btn-primary"
+          id="decryptBtn"
+          style="width: 100%"
+          onclick="fetchAndDecrypt()"
+        >
+          🔓 Rasmni Qayta Tiklash
+        </button>
+
+        <div
+          id="imgPreviewBox"
+          style="margin-top: 15px; text-align: center"
+        ></div>
+      </div>
+    </div>
+
+    <div id="toast" class="status-toast">Nusxalandi!</div>
+    <script src="foto.js"></script>
+  </body>
+</html>

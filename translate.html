@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🌐 Tarjimon</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="index.html">🔢 Binary</a>
+      <a href="translate.html" class="active">🌐 Tarjimon</a>
+      <a href="foto.html">🖼 Rasm Shifrlash</a>
+    </nav>
+
+    <div class="container">
+      <h1>🌐 Tezkor Tarjimon</h1>
+      <p class="subtitle">Ko'p tilli avtomatsiz tarjima xizmati</p>
+
+      <div class="translator-select">
+        <select id="sourceLang">
+          <option value="uz">O'zbek tili</option>
+          <option value="tr">Turk tili</option>
+          <option value="ru">Rus tili</option>
+          <option value="en">Ingliz tili</option>
+        </select>
+        <button class="swap-btn" onclick="swapLanguages()">⇄</button>
+        <select id="targetLang">
+          <option value="tr">Turk tili</option>
+          <option value="uz">O'zbek tili</option>
+          <option value="ru">Rus tili</option>
+          <option value="en" selected>Ingliz tili</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <textarea id="trInput" placeholder="Matnni kiriting..."></textarea>
+      </div>
+      <button
+        class="btn btn-primary"
+        style="width: 100%; margin-bottom: 15px"
+        onclick="translateText()"
+      >
+        Tarjima qilish
+      </button>
+
+      <div class="input-group">
+        <textarea
+          id="trOutput"
+          readonly
+          placeholder="Tarjima bu yerda ko'rinadi..."
+        ></textarea>
+        <div class="actions">
+          <button class="btn btn-secondary" onclick="copyTranslate()">
+            📋 Nusxalash
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="status-toast">Nusxalandi!</div>
+    <script src="translate.js"></script>
+  </body>
+</html>

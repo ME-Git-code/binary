@@ -1,0 +1,185 @@
+// 1. Firebase Sozlamalari (https://console.firebase.google.com saytidan bepul olinadi)
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD_HSqUOmhEwPL-DtrjOdo58dLDS4m6RcY",
+  authDomain: "binary-6.firebaseapp.com",
+  projectId: "binary-6",
+  storageBucket: "binary-6.firebasestorage.app",
+  messagingSenderId: "1008814229589",
+  appId: "1:1008814229589:web:18ea52d2e936d8a17e2cdc",
+  measurementId: "G-QG0E54HM35"
+};
+
+
+// Firebase-ni ishga tushirish
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function switchCrypto(type) {
+  document.getElementById("encBox").style.display = type === "encode" ? "block" : "none";
+  document.getElementById("decBox").style.display = type === "decode" ? "block" : "none";
+  document.getElementById("encTab").classList.toggle("active", type === "encode");
+  document.getElementById("decTab").classList.toggle("active", type === "decode");
+}
+
+// Random 6 xonali kalta kod yaratish (Masalan: A7X9K2)
+function generateShortCode() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+// Bazada band bo'lmagan, takrorlanmas kod topish
+async function generateUniqueShortCode() {
+  const MAX_ATTEMPTS = 5;
+  for (let i = 0; i < MAX_ATTEMPTS; i++) {
+    const code = generateShortCode();
+    const doc = await db.collection("photos").doc(code).get();
+    if (!doc.exists) return code;
+  }
+  throw new Error("Bo'sh kod topilmadi, qaytadan urinib ko'ring.");
+}
+
+// Firestore hujjat hajmi limiti (~1MB). Xavfsizlik chegarasi sifatida 900KB olamiz.
+const MAX_ENCRYPTED_SIZE = 900 * 1024;
+
+// SHIFRLASH VA BAZAGA SAQLASH
+async function encryptAndUpload() {
+  const fileInput = document.getElementById("imgInput");
+  const pass = document.getElementById("encPass").value;
+  const deleteMode = document.getElementById("deleteMode").value; // Rejimni olish ('once' yoki 'keep')
+  const resultBox = document.getElementById("shortCodeResult");
+  const encryptBtn = document.getElementById("encryptBtn");
+
+  if (!fileInput.files[0] || !pass) return alert("Rasm va parolni kiriting!");
+
+  encryptBtn.disabled = true;
+  resultBox.value = "Shifrlanmoqda...";
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const img = new Image();
+    img.onload = async function () {
+      try {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const maxDim = 800;
+        let width = img.width, height = img.height;
+
+        if (width > height && width > maxDim) { height *= maxDim / width; width = maxDim; }
+        else if (height > maxDim) { width *= maxDim / height; height = maxDim; }
+
+        canvas.width = width; canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedBase64 = canvas.toDataURL("image/jpeg", 0.6);
+        const encryptedData = CryptoJS.AES.encrypt(compressedBase64, pass).toString();
+
+        // Hujjat hali ham juda katta bo'lsa, foydalanuvchini ogohlantiramiz
+        if (encryptedData.length > MAX_ENCRYPTED_SIZE) {
+          alert("Rasm hali ham juda katta, iltimos kichikroq yoki sifati pastroq rasm tanlang.");
+          resultBox.value = "";
+          encryptBtn.disabled = false;
+          return;
+        }
+
+        resultBox.value = "Kod tekshirilmoqda...";
+        const shortCode = await generateUniqueShortCode();
+
+        // Firebase Firestore-ga rejim bilan saqlash
+        await db.collection("photos").doc(shortCode).set({
+          data: encryptedData,
+          mode: deleteMode,
+          createdAt: new Date()
+        });
+
+        resultBox.value = shortCode;
+        showToast("Kod yaratildi!");
+      } catch (err) {
+        alert("Bazaga saqlashda xatolik! " + (err && err.message ? err.message : ""));
+        resultBox.value = "";
+      } finally {
+        encryptBtn.disabled = false;
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(fileInput.files[0]);
+}
+
+// BAZADAN OLIB RASSHIFRLASH
+function fetchAndDecrypt() {
+  const code = document.getElementById("decCodeInput").value.trim().toUpperCase();
+  const pass = document.getElementById("decPass").value;
+  const previewBox = document.getElementById("imgPreviewBox");
+  const decryptBtn = document.getElementById("decryptBtn");
+
+  if (!code || !pass) return alert("Kod va parolni kiriting!");
+
+  decryptBtn.disabled = true;
+  previewBox.innerHTML = "<p style='color:#94a3b8;'>Rasm qidirilmoqda...</p>";
+
+  db.collection("photos").doc(code).get().then((doc) => {
+    if (!doc.exists) {
+      previewBox.innerHTML = "";
+      return alert("Bunday kodli rasm topilmadi yoki u allaqachon o'chirilgan!");
+    }
+
+    const docData = doc.data();
+    const encryptedData = docData.data;
+    const mode = docData.mode || "keep";
+
+    try {
+      const bytes = CryptoJS.AES.decrypt(encryptedData, pass);
+      const originalBase64 = bytes.toString(CryptoJS.enc.Utf8);
+
+      if (!originalBase64.startsWith("data:image")) {
+        previewBox.innerHTML = "";
+        return alert("Xato parol!");
+      }
+
+      // 1 martalik rejim bo'lsa, avtomatik o'chirish
+      if (mode === "once") {
+        db.collection("photos").doc(code).delete();
+      }
+
+      const badge = mode === "once"
+        ? "<p style='color:#ef4444; font-size:0.8rem; margin-bottom:5px;'>🔥 Ushbu rasm 1 martalik edi va bazadan o'chirildi!</p>"
+        : "<p style='color:#10b981; font-size:0.8rem; margin-bottom:5px;'>♾ Ushbu rasm ko'p martalik va bazada saqlanadi.</p>";
+
+      previewBox.innerHTML = `
+        ${badge}
+        <img src="${originalBase64}" style="max-width:100%; border-radius:8px; margin-bottom:8px; border:1px solid #334155;" />
+        <br/>
+        <a href="${originalBase64}" download="restored-image.jpg" class="btn btn-primary" style="display:inline-block; text-decoration:none;">📥 Yuklab olish</a>
+      `;
+      showToast("Rasm tiklandi!");
+    } catch (e) {
+      previewBox.innerHTML = "";
+      alert("Parol xato bo'lishi mumkin!");
+    }
+  }).catch(() => {
+    previewBox.innerHTML = "";
+    alert("Server bilan bog'lanishda xatolik!");
+  }).finally(() => {
+    decryptBtn.disabled = false;
+  });
+}
+
+function copyCode() {
+  const res = document.getElementById("shortCodeResult");
+  if (res.value && res.value !== "Shifrlanmoqda...") {
+    navigator.clipboard.writeText(res.value);
+    showToast("Kod nusxalandi!");
+  }
+}
+
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2000);
+}

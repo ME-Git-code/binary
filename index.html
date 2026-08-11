@@ -3,29 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Binary Kodlash va Retranslyatsiya</title>
+    <title>Binary Konvertor</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- Tarjimon Tugmasi -->
-    <div class="translate-btn" onclick="openTranslator()">🌐</div>
+    <nav class="navbar">
+      <a href="index.html" class="active">🔢 Binary</a>
+      <a href="translate.html">🌐 Tarjimon</a>
+      <a href="foto.html">🖼 Rasm Shifrlash</a>
+    </nav>
 
-    <!-- Main Container -->
     <div class="container">
       <h1>Binary Konvertor</h1>
       <p class="subtitle">Matnlarni ikkilik kodga va aksincha o'giring</p>
 
       <div class="tabs">
-        <button class="tab-btn active" onclick="switchMode('textToBinary')">
+        <button
+          class="tab-btn active"
+          id="btnText"
+          onclick="switchMode('textToBinary')"
+        >
           Matn ➔ Binary
         </button>
-        <button class="tab-btn" onclick="switchMode('binaryToText')">
+        <button
+          class="tab-btn"
+          id="btnBin"
+          onclick="switchMode('binaryToText')"
+        >
           Binary ➔ Matn
         </button>
       </div>
 
       <div class="input-group">
-        <label id="inputLabel" for="inputText">Matnni kiriting:</label>
+        <label id="inputLabel">Matnni kiriting:</label>
         <textarea
           id="inputText"
           placeholder="Bu yerga matn kiriting..."
@@ -45,7 +55,7 @@
       </div>
 
       <div class="input-group">
-        <label id="outputLabel" for="outputText">Binary natija:</label>
+        <label id="outputLabel">Binary natija:</label>
         <textarea
           id="outputText"
           readonly
@@ -62,51 +72,7 @@
       </div>
     </div>
 
-    <!-- Tarjimon Modal (Popup) -->
-    <div class="translator-modal" id="translatorModal">
-      <div class="translator-box">
-        <div class="translator-header">
-          <h2>🌐 Tarjimon</h2>
-          <button onclick="closeTranslator()">&times;</button>
-        </div>
-
-        <div class="translator-select">
-          <select id="sourceLang">
-            <option value="uz">O'zbek tili</option>
-            <option value="tr">Turk tili</option>
-            <option value="ru">Rus tili</option>
-            <option value="en">Ingliz tili</option>
-          </select>
-          <button class="swap-btn" onclick="swapLanguages()">⇄</button>
-          <select id="targetLang">
-            <option value="tr">Turk tili</option>
-            <option value="uz">O'zbek tili</option>
-            <option value="ru">Rus tili</option>
-            <option value="en" selected>Ingliz tili</option>
-          </select>
-        </div>
-
-        <textarea id="trInput" placeholder="Matnni kiriting..."></textarea>
-
-        <button class="translate-now" onclick="translateText()">
-          Tarjima qilish
-        </button>
-
-        <textarea
-          id="trOutput"
-          readonly
-          placeholder="Tarjima bu yerda ko'rinadi..."
-        ></textarea>
-
-        <div class="translator-actions">
-          <button onclick="copyTranslate()">📋 Nusxalash</button>
-          <button onclick="closeTranslator()">Yopish</button>
-        </div>
-      </div>
-    </div>
-
     <div id="toast" class="status-toast">Nusxalandi!</div>
-
-    <script src="script.js"></script>
+    <script src="index.js"></script>
   </body>
 </html>

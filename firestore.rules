@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /photos/{code} {
+
+      // Kodni bilgan har kim rasmni o'qishi mumkin (ilova shunday ishlaydi),
+      // lekin butun collection'ni skanerlash (list) taqiqlanadi.
+      allow get: if true;
+      allow list: if false;
+
+      // Yangi rasm yaratish - faqat kutilgan maydonlar va to'g'ri turdagi
+      // qiymatlar bilan, hajmi cheklangan holda ruxsat etiladi.
+      allow create: if
+        request.resource.data.keys().hasOnly(['data', 'mode', 'createdAt']) &&
+        request.resource.data.data is string &&
+        request.resource.data.data.size() < 900000 &&
+        request.resource.data.mode in ['once', 'keep'] &&
+        request.resource.data.createdAt is timestamp;
+
+      // Mavjud rasmni tahrirlashga umuman ruxsat yo'q.
+      allow update: if false;
+
+      // O'chirish faqat "once" (bir martalik) rejimdagi rasmlar uchun,
+      // ular ko'rilgach ilova avtomatik o'chiradi.
+      allow delete: if resource.data.mode == 'once';
+    }
+
+    // Boshqa barcha yo'llar yopiq.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
