@@ -1,0 +1,8 @@
+# Maxfiy Firebase kalitlari — hech qachon git'ga tushmasin
+firebase-config.js
+
+# OS / editor fayllari
+.DS_Store
+Thumbs.db
+*.log
+node_modules/

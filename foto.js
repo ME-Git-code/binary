@@ -1,15 +1,14 @@
 // 1. Firebase Sozlamalari (https://console.firebase.google.com saytidan bepul olinadi)
+// Haqiqiy kalitlar endi shu faylda emas — firebase-config.js faylida saqlanadi
+// (u .gitignore orqali repo'dan chetlab o'tiladi). Qarang: firebase-config.example.js
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD_HSqUOmhEwPL-DtrjOdo58dLDS4m6RcY",
-  authDomain: "binary-6.firebaseapp.com",
-  projectId: "binary-6",
-  storageBucket: "binary-6.firebasestorage.app",
-  messagingSenderId: "1008814229589",
-  appId: "1:1008814229589:web:18ea52d2e936d8a17e2cdc",
-  measurementId: "G-QG0E54HM35"
-};
-
+if (!window.FIREBASE_CONFIG) {
+  throw new Error(
+    "firebase-config.js topilmadi! firebase-config.example.js faylidan nusxa oling " +
+    "va nomini firebase-config.js ga o'zgartirib, o'z Firebase kalitlaringizni kiriting."
+  );
+}
+const firebaseConfig = window.FIREBASE_CONFIG;
 
 // Firebase-ni ishga tushirish
 firebase.initializeApp(firebaseConfig);
