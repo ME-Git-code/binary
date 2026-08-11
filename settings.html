@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      (function () {
+        var light = localStorage.getItem("theme_light") === "true";
+        document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>⚙️ Sozlamalar</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-links">
+        <a href="index.html">🔢 Binary</a>
+        <a href="translate.html">🌐 Tarjimon</a>
+        <a href="foto.html">🖼 Rasm Shifrlash</a>
+      </div>
+      <div class="nav-icons">
+        <button class="icon-btn" onclick="showHelp('settings')" aria-label="Yordam">❓</button>
+        <a href="settings.html" class="icon-btn active" aria-label="Sozlamalar">⚙️</a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>⚙️ Sozlamalar</h1>
+      <p class="subtitle">Ilova ko'rinishi va xatti-harakatini sozlang</p>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <span class="setting-title">🌙 Tungi rejim</span>
+          <span class="setting-desc">Yoqilgan bo'lsa qorong'i, o'chirilsa yorug' fon</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="themeToggle" onchange="onThemeToggle()" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <span class="setting-title">📳 Vibratsiya</span>
+          <span class="setting-desc">Tugmalar bosilganda titrash</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="vibrationToggle" onchange="onVibrationToggle()" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div id="toast" class="status-toast">Saqlandi!</div>
+
+    <div class="modal-overlay" id="helpModal">
+      <div class="modal-box">
+        <h3 id="helpModalTitle"></h3>
+        <p id="helpModalText"></p>
+        <button class="btn btn-primary" style="width: 100%" onclick="closeHelp()">Tushunarli</button>
+      </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script src="settings.js"></script>
+  </body>
+</html>

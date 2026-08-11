@@ -1,6 +1,7 @@
 let currentMode = "textToBinary";
 
 function switchMode(mode) {
+  triggerHaptic();
   currentMode = mode;
   document.getElementById("btnText").classList.toggle("active", mode === "textToBinary");
   document.getElementById("btnBin").classList.toggle("active", mode === "binaryToText");
@@ -34,6 +35,7 @@ function convert() {
 }
 
 function copyOutput() {
+  triggerHaptic();
   const outputText = document.getElementById("outputText");
   if (outputText.value) {
     navigator.clipboard.writeText(outputText.value);
@@ -42,27 +44,23 @@ function copyOutput() {
 }
 
 function clearFields() {
+  triggerHaptic();
   document.getElementById("inputText").value = "";
   document.getElementById("outputText").value = "";
   document.getElementById("errorMessage").style.display = "none";
 }
 
 function insertSample() {
+  triggerHaptic();
   document.getElementById("inputText").value = currentMode === "textToBinary" ? "Salom, Dunyo!" : "01010011 01000001 01001101";
   convert();
 }
 
 async function autoPaste() {
+  triggerHaptic();
   try {
     document.getElementById("inputText").value = await navigator.clipboard.readText();
     convert();
     showToast("Joylandi!");
   } catch (e) { showToast("Ruxsat berilmadi!"); }
-}
-
-function showToast(msg) {
-  const toast = document.getElementById("toast");
-  toast.innerText = msg;
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 2000);
 }

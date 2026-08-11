@@ -16,10 +16,32 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 function switchCrypto(type) {
+  triggerHaptic();
   document.getElementById("encBox").style.display = type === "encode" ? "block" : "none";
   document.getElementById("decBox").style.display = type === "decode" ? "block" : "none";
   document.getElementById("encTab").classList.toggle("active", type === "encode");
   document.getElementById("decTab").classList.toggle("active", type === "decode");
+}
+
+// ----- Galereya / Kamera orqali rasm tanlash -----
+let selectedImageFile = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  const galleryInput = document.getElementById("imgInputGallery");
+  const cameraInput = document.getElementById("imgInputCamera");
+  if (galleryInput) galleryInput.addEventListener("change", (e) => onImageSelected(e.target.files[0]));
+  if (cameraInput) cameraInput.addEventListener("change", (e) => onImageSelected(e.target.files[0]));
+});
+
+function onImageSelected(file) {
+  if (!file) return;
+  selectedImageFile = file;
+  const preview = document.getElementById("imgPreview");
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    preview.innerHTML = `<img src="${e.target.result}" alt="Tanlangan rasm" />`;
+  };
+  reader.readAsDataURL(file);
 }
 
 // Random 6 xonali kalta kod yaratish (Masalan: A7X9K2)
@@ -48,14 +70,14 @@ const MAX_ENCRYPTED_SIZE = 900 * 1024;
 
 // SHIFRLASH VA BAZAGA SAQLASH
 async function encryptAndUpload() {
-  const fileInput = document.getElementById("imgInput");
   const pass = document.getElementById("encPass").value;
   const deleteMode = document.getElementById("deleteMode").value; // Rejimni olish ('once' yoki 'keep')
   const resultBox = document.getElementById("shortCodeResult");
   const encryptBtn = document.getElementById("encryptBtn");
 
-  if (!fileInput.files[0] || !pass) return alert("Rasm va parolni kiriting!");
+  if (!selectedImageFile || !pass) return alert("Rasm va parolni kiriting!");
 
+  triggerHaptic();
   encryptBtn.disabled = true;
   resultBox.value = "Shifrlanmoqda...";
 
@@ -107,7 +129,7 @@ async function encryptAndUpload() {
     };
     img.src = e.target.result;
   };
-  reader.readAsDataURL(fileInput.files[0]);
+  reader.readAsDataURL(selectedImageFile);
 }
 
 // BAZADAN OLIB RASSHIFRLASH
@@ -119,8 +141,9 @@ function fetchAndDecrypt() {
 
   if (!code || !pass) return alert("Kod va parolni kiriting!");
 
+  triggerHaptic();
   decryptBtn.disabled = true;
-  previewBox.innerHTML = "<p style='color:#94a3b8;'>Rasm qidirilmoqda...</p>";
+  previewBox.innerHTML = "<p style='color:var(--text-secondary);'>Rasm qidirilmoqda...</p>";
 
   db.collection("photos").doc(code).get().then((doc) => {
     if (!doc.exists) {
@@ -170,16 +193,10 @@ function fetchAndDecrypt() {
 }
 
 function copyCode() {
+  triggerHaptic();
   const res = document.getElementById("shortCodeResult");
   if (res.value && res.value !== "Shifrlanmoqda...") {
     navigator.clipboard.writeText(res.value);
     showToast("Kod nusxalandi!");
   }
-}
-
-function showToast(msg) {
-  const toast = document.getElementById("toast");
-  toast.innerText = msg;
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 2000);
 }

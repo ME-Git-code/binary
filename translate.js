@@ -1,4 +1,5 @@
 function swapLanguages() {
+  triggerHaptic();
   const source = document.getElementById("sourceLang");
   const target = document.getElementById("targetLang");
   const temp = source.value;
@@ -7,6 +8,7 @@ function swapLanguages() {
 }
 
 async function translateText() {
+  triggerHaptic();
   const input = document.getElementById("trInput").value.trim();
   const output = document.getElementById("trOutput");
   const source = document.getElementById("sourceLang").value;
@@ -32,11 +34,10 @@ async function translateText() {
 }
 
 function copyTranslate() {
+  triggerHaptic();
   const trOutput = document.getElementById("trOutput");
   if (trOutput.value) {
     navigator.clipboard.writeText(trOutput.value);
-    const toast = document.getElementById("toast");
-    toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 2000);
+    showToast("Nusxalandi!");
   }
 }

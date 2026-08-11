@@ -2,6 +2,12 @@
 <html lang="uz">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (function () {
+        var light = localStorage.getItem("theme_light") === "true";
+        document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🖼 Rasm Shifrlash</title>
     <link rel="stylesheet" href="style.css" />
@@ -12,9 +18,15 @@
   </head>
   <body>
     <nav class="navbar">
-      <a href="index.html">🔢 Binary</a>
-      <a href="translate.html">🌐 Tarjimon</a>
-      <a href="foto.html" class="active">🖼 Rasm Shifrlash</a>
+      <div class="nav-links">
+        <a href="index.html">🔢 Binary</a>
+        <a href="translate.html">🌐 Tarjimon</a>
+        <a href="foto.html" class="active">🖼 Rasm Shifrlash</a>
+      </div>
+      <div class="nav-icons">
+        <button class="icon-btn" onclick="showHelp('foto')" aria-label="Yordam">❓</button>
+        <a href="settings.html" class="icon-btn" aria-label="Sozlamalar">⚙️</a>
+      </div>
     </nav>
 
     <div class="container">
@@ -40,12 +52,36 @@
       <div id="encBox">
         <div class="input-group">
           <label>1. Rasmni tanlang:</label>
+          <div class="upload-buttons">
+            <button
+              type="button"
+              class="btn btn-secondary upload-btn"
+              onclick="triggerHaptic(); document.getElementById('imgInputGallery').click()"
+            >
+              🖼 Galereyadan
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary upload-btn"
+              onclick="triggerHaptic(); document.getElementById('imgInputCamera').click()"
+            >
+              📷 Kameradan
+            </button>
+          </div>
           <input
             type="file"
-            id="imgInput"
+            id="imgInputGallery"
             accept="image/*"
-            class="file-input"
+            style="display: none"
           />
+          <input
+            type="file"
+            id="imgInputCamera"
+            accept="image/*"
+            capture="environment"
+            style="display: none"
+          />
+          <div id="imgPreview" class="img-preview"></div>
         </div>
         <div class="input-group">
           <label>2. Maxfiy Parol kiriting:</label>
@@ -137,6 +173,16 @@
     </div>
 
     <div id="toast" class="status-toast">Nusxalandi!</div>
+
+    <div class="modal-overlay" id="helpModal">
+      <div class="modal-box">
+        <h3 id="helpModalTitle"></h3>
+        <p id="helpModalText"></p>
+        <button class="btn btn-primary" style="width: 100%" onclick="closeHelp()">Tushunarli</button>
+      </div>
+    </div>
+
+    <script src="common.js"></script>
     <script src="foto.js"></script>
   </body>
 </html>

@@ -1,28 +1,46 @@
-# Qilingan o'zgarishlar
+# Qilingan o'zgarishlar (2-bosqich)
 
-## 1. `firestore.rules` (YANGI FAYL)
-Hozirgi qoidalaringiz "test mode" edi (2026-09-10 gacha hammaga ochiq).
-Bu faylni Firebase Console'ga qo'llang:
+## 1. Yangi: Sozlamalar sahifasi (`settings.html`, `settings.js`)
+Navbardagi ⚙️ tugmasi orqali ochiladi. Ikkita sozlama bor:
+- **🌙 Tungi rejim** — yoqilgan/o'chirilgan holatga qarab butun sayt qorong'i yoki
+  yorug' fonga o'tadi (barcha sahifalarda saqlanadi, `localStorage` orqali).
+- **📳 Vibratsiya** — tugmalar bosilganda telefon titrashini yoqadi/o'chiradi.
 
-1. https://console.firebase.google.com → loyihangiz (`binary-6`) → Firestore Database → Rules
-2. Shu fayl ichidagi matnni to'liq nusxalab, mavjud qoidalar o'rniga joylashtiring
-3. "Publish" tugmasini bosing
+## 2. Yangi: umumiy `common.js`
+Barcha sahifalarda ulangan. Tema, vibratsiya (`triggerHaptic()`), yordam oynasi
+(`showHelp()`/`closeHelp()`) va umumiy `showToast()` funksiyalarini boshqaradi.
+Har bir sahifadagi eski, alohida-alohida yozilgan `showToast()` funksiyalari olib
+tashlandi — endi hammasi shu bitta joydan boshqariladi.
 
-Bu qoidalar:
-- Har kim kod orqali (`get`) rasmni o'qiy oladi (ilova shunday ishlaydi)
-- Hech kim butun bazani ro'yxatga ololmaydi (`list: false`)
-- Yozishda hujjat hajmi va maydonlari tekshiriladi (spam/zararli yozuvlarning oldi olinadi)
-- O'chirish faqat "once" (bir martalik) rasmlar uchun ruxsat etiladi
-- Hujjatni tahrirlash umuman taqiqlangan
+## 3. Yangi: yordam (❓) tugmasi har sahifada
+Navbarning o'ng tomonida. Bosilganda o'sha sahifa nima qilishini qisqacha
+tushuntiruvchi oyna ochiladi (to'liq qo'llanma emas, faqat asosiy g'oya).
 
-## 2. `foto.js`
-- `deleteMode` ("1 martalik" / "ko'p martalik") endi to'liq ishlaydi
-- 6 xonali kod yaratilganda endi bazada band emasligi tekshiriladi (to'qnashuv oldini olish)
-- Shifrlangan hajm 900KB dan oshsa, foydalanuvchiga aniq xabar chiqadi
-- Yuklash/tiklash paytida tugmalar vaqtincha bloklanadi (ikki marta bosishning oldini olish)
+## 4. Foto sahifasida: Galereya / Kamera orqali yuklash
+Oldingi oddiy fayl tanlash o'rniga endi ikkita tugma bor:
+- **🖼 Galereyadan** — telefon xotirasidagi rasmlar orasidan tanlash
+- **📷 Kameradan** — to'g'ridan-to'g'ri kamerani ochib, rasmga tushirish
+Rasm tanlangach, shifrlashdan oldin kichik preview (ko'rinish) chiqadi.
 
-## 3. `foto.html`
-- Tugmalarga `id="encryptBtn"` va `id="decryptBtn"` qo'shildi (yuqoridagi bloklash uchun kerak)
+## 5. Vibratsiya butun saytga qo'shildi
+Deyarli barcha tugmalar (tab almashtirish, nusxalash, tozalash, tarjima,
+shifrlash/tiklash va h.k.) endi `triggerHaptic()` chaqiradi — lekin faqat
+Sozlamalarda "Vibratsiya" yoqilgan bo'lsa ishlaydi.
 
-## 4. `script.js` olib tashlandi
-Bu fayl hech qaysi HTML sahifada ishlatilmagan (eski/dublikat versiya edi).
+## 6. To'liq mobil moslashtirish
+- Barcha rang va o'lchamlar CSS o'zgaruvchilariga o'tkazildi (tungi/kunduzgi
+  rejim shu orqali ishlaydi)
+- `input`/`textarea`/`select` shrift hajmi 16px qilindi — iOS'da avtomatik
+  zoom bo'lib ketishining oldi olindi
+- Tugmalar minimal balandligi 40px+ ga chiqarildi (barmoq bilan bosish qulay
+  bo'lishi uchun)
+- Navbar kichik ekranlarda o'raladi (wrap), sozlamalar/yordam ikonkalari bilan
+  birga chiroyli joylashadi
+- Tarjimon sahifasida tillar tanlash bloki kichik ekranda ustma-ust (vertikal)
+  joylashadi, almashtirish tugmasi aylantiriladi
+- 480px va undan kichik ekranlar uchun alohida `@media` qoidalari qo'shildi
+
+## Eslatma
+Oldingi bosqichda qilingan xavfsizlik tuzatishlari (Firestore Rules, kod
+to'qnashuvi tekshiruvi, hajm limiti, tugmalarni bloklash) o'zgarishsiz saqlanib
+qoldi.

@@ -2,15 +2,36 @@
 <html lang="uz">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (function () {
+        var light = localStorage.getItem("theme_light") === "true";
+        document.documentElement.setAttribute(
+          "data-theme",
+          light ? "light" : "dark",
+        );
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Binary Konvertor</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <nav class="navbar">
-      <a href="index.html" class="active">🔢 Binary</a>
-      <a href="translate.html">🌐 Tarjimon</a>
-      <a href="foto.html">🖼 Rasm Shifrlash</a>
+      <div class="nav-links">
+        <a href="index.html" class="active">🔢 Binary</a>
+        <a href="translate.html">🌐 Tarjimon</a>
+        <a href="foto.html">🖼 Rasm Shifrlash</a>
+      </div>
+      <div class="nav-icons">
+        <button
+          class="icon-btn"
+          onclick="showHelp('index')"
+          aria-label="Yordam"
+        >
+          ❓
+        </button>
+        <a href="settings.html" class="icon-btn" aria-label="Sozlamalar">⚙️</a>
+      </div>
     </nav>
 
     <div class="container">
@@ -46,7 +67,7 @@
             Namuna
           </button>
           <button class="btn btn-secondary" onclick="autoPaste()">
-            📋 Joylash
+            Joylash
           </button>
           <button class="btn btn-secondary" onclick="clearFields()">
             Tozalash
@@ -73,6 +94,26 @@
     </div>
 
     <div id="toast" class="status-toast">Nusxalandi!</div>
+
+    <div class="modal-overlay" id="helpModal">
+      <div class="modal-box">
+        <h3 id="helpModalTitle"></h3>
+        <p id="helpModalText"></p>
+        <button
+          class="btn btn-primary"
+          style="width: 100%"
+          onclick="closeHelp()"
+        >
+          Tushunarli
+        </button>
+      </div>
+    </div>
+<footer>
+      <p>
+        &copy; 2024 <a href="index.html">Binary Konvertor</a>. Barcha huquqlar himoyalangan.
+      </p>
+    </footer>
+    <script src="common.js"></script>
     <script src="index.js"></script>
   </body>
 </html>
